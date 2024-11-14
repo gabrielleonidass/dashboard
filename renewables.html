@@ -8,14 +8,27 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: linear-gradient(120deg, #1a1f3c, #2a2f4c);
-        }
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(120deg, #1a1f3c, #2a2f4c);
+}
+
+.eco-symbol {
+    position: absolute;
+    color: #4CAF50;
+    opacity: 0.1;
+    pointer-events: none;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+}
 
         .nav-link {
             position: relative;
@@ -160,5 +173,35 @@
             </a>
         </div>
     </section>
+    <script>
+        function createEcoSymbols() {
+    const background = document.querySelector('.background');
+    for (let i = 0; i < 20; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'eco-symbol';
+        symbol.innerHTML = '♻';
+
+        const size = Math.random() * 30 + 10;
+        symbol.style.fontSize = `${size}px`;
+
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        symbol.style.left = `${startX}px`;
+        symbol.style.top = `${startY}px`;
+
+        const moveX = (Math.random() - 0.5) * 200;
+        const moveY = (Math.random() - 0.5) * 200;
+        symbol.style.setProperty('--moveX', `${moveX}px`);
+        symbol.style.setProperty('--moveY', `${moveY}px`);
+
+        symbol.style.animationDelay = `${Math.random() * 20}s`;
+
+        background.appendChild(symbol);
+    }
+}
+
+createEcoSymbols();
+
+    </script>
 </body>
 </html>
