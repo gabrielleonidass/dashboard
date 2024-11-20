@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Reciclagem SSA</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js" rel="stylesheet">
+    <style>
+            .background {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1; 
+                pointer-events: none;
+            }
+
+            .recycle-symbol {
+                position: absolute;
+                color: #43A047; 
+                animation: float 20s linear infinite;
+            }
+
+            @keyframes float {
+                0% {
+                    transform: translate(0, 0) rotate(0deg);
+                }
+                100% {
+                    transform: translate(var(--moveX), var(--moveY)) rotate(360deg);
+                }
+            }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        :root {
+            --primary-blue: #0066cc;
+            --primary-red: #ff3b30;
+            --primary-green: #34c759;
+            --primary-yellow: #ffcc00;
+            --primary-brown: #8b4513;
+            
+            --bg-color: #e8f5e9;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #1b5e20;
+            --shadow: rgba(27, 94, 32, 0.1);
+            --gradient-bg: linear-gradient(135deg, #cee9d0, #9bdb9d);
+        }
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --card-bg: rgba(30, 30, 30, 0.9);
+            --text-color: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --gradient-bg: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-placeholder {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .hero {
+            margin-top: 80px;
+            padding: 4rem 5%;
+            text-align: center;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+
+        .dashboard-preview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .biomass-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 2rem auto;
+            max-width: 1200px;
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+
+        .biomass-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .biomass-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .blue { color: var(--primary-blue); }
+        .red { color: var(--primary-red); }
+        .green { color: var(--primary-green); }
+        .yellow { color: var(--primary-yellow); }
+        .brown { color: var(--primary-brown); }
+
+        footer {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 2rem 5%;
+            text-align: center;
+            margin-top: 4rem;
+            box-shadow: 0 -2px 10px var(--shadow);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .progress {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 2rem 5%;
+            }
+
+            .stats-grid, .dashboard-preview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <nav class="navbar">
+        <div class="logo-placeholder">
+            Parispe Recycle
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <i class='bx bx-moon'></i>
+        </button>
+    </nav>
+
+    <section class="hero">
+        <div class="glass-card">
+            <h1>Dashboard de Reciclagem</h1>
+            <p>Monitoramento em tempo real da reciclagem em Salvador</p>
+            <button class="btn" onclick="redirecionarParaPagina('dashboard.html')">Acessar Dashboard Completo</button>
+        </div>
+
+        <div class="glass-card">
+            <h2>Prévia do Dashboard</h2>
+            <div class="dashboard-preview">
+                <div class="chart-container">
+                    <canvas id="recyclingChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="weeklyProgress"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class='bx bx-paper-plane blue'></i>
+                <h3>Papel</h3>
+                <div class="stat-value">1.2t</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 75%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class='bx bx-bottle red'></i>
+                <h3>Plástico</h3>
+                <div class="stat-value">0.8t</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 60%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class='bx bx-wine green'></i>
+                <h3>Vidro</h3>
+                <div class="stat-value">0.5t</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 45%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class='bx bx-medal yellow'></i>
+                <h3>Metal</h3>
+                <div class="stat-value">0.9t</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 65%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class='bx bx-leaf brown'></i>
+                <h3>Orgânico</h3>
+                <div class="stat-value">2.1t</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 85%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="biomass-section">
+            <h2>Expectativa da produção de Biomassa</h2>
+            <div class="biomass-grid">
+                <div class="biomass-card">
+                    <i class='bx bx-tree green' style="font-size: 3rem;"></i>
+                    <h3>Produção de Energia</h3>
+                    <div class="stat-value">250 kWh</div>
+                    <p>Energia a ser gerada este mês</p>
+                </div>
+                <div class="biomass-card">
+                    <i class='bx bx-recycle green' style="font-size: 3rem;"></i>
+                    <h3>Resíduos Processados</h3>
+                    <div class="stat-value">3.5t</div>
+                    <p>Biomassa convertida</p>
+                </div>
+                <div class="biomass-card">
+                    <i class='bx bx-line-chart green' style="font-size: 3rem;"></i>
+                    <h3>Eficiência</h3>
+                    <div class="stat-value">85%</div>
+                    <p>Taxa de conversão</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 [ParispeRecycle]. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('.theme-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('bx-moon');
+                icon.classList.add('bx-sun');
+            } else {
+                icon.classList.remove('bx-sun');
+                icon.classList.add('bx-moon');
+            }
+            updateCharts();
+        }
+        function redirecionarParaPagina(pagina) {
+            window.location.href = pagina;
+        }
+
+
+        particlesJS('particles-js',
+            {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": ["#34c759", "#2ecc71", "#27ae60", "#66bb6a", "#43a047"]
+                    },
+                    "shape": {
+                        "type": "circle"
+                    },
+                    "opacity": {
+                        "value": 0.3,
+                        "random": false
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#2ecc71",
+                        "opacity": 0.2,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    }
+                },
+                "retina_detect": true
+            }
+        );
+
+        const ctx1 = document.getElementById('recyclingChart').getContext('2d');
+        const ctx2 = document.getElementById('weeklyProgress').getContext('2d');
+
+        function createCharts() {
+            
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Papel', 'Plástico', 'Vidro', 'Metal', 'Orgânico'],
+                    datasets: [{
+                        data: [30, 20, 15, 25, 10],
+                        backgroundColor: [
+                            '#0066cc',
+                            '#ff3b30',
+                            '#34c759',
+                            '#ffcc00',
+                            '#8b4513'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Reciclagem Diária (kg)',
+                        data: [250, 320, 280, 400, 350, 290, 310],
+                        borderColor: '#34c759',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(52, 199, 89, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+
+        createCharts();
+        function createRecycleSymbols() {
+    const background = document.createElement('div');
+    background.className = 'background';
+    document.body.appendChild(background);
+
+    for (let i = 0; i < 30; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'recycle-symbol';
+        symbol.innerHTML = '♻';
+        
+        const size = Math.random() * 30 + 10;
+        symbol.style.fontSize = `${size}px`;
+        
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        symbol.style.left = `${startX}px`;
+        symbol.style.top = `${startY}px`;
+        
+        const moveX = (Math.random() - 0.5) * 200;
+        const moveY = (Math.random() - 0.5) * 200;
+        symbol.style.setProperty('--moveX', `${moveX}px`);
+        symbol.style.setProperty('--moveY', `${moveY}px`);
+        
+        symbol.style.opacity = Math.random() * 0.5 + 0.1;
+        symbol.style.animationDelay = `${Math.random() * 20}s`;
+        
+        background.appendChild(symbol);
+    }
+}
+
+
+createRecycleSymbols();
+
+
+    </script>
+</body>
+</html>

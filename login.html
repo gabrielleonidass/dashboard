@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Cadastro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --primary-color: #4CAF50;
+            --primary-dark: #45a049;
+            --background-dark: #1a1f3c;
+            --background-light: #2a2f4c;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --transition-speed: 0.3s;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(120deg, #1a1f3c, #2a2f4c);
+        }
+        
+        .eco-symbol {
+            position: absolute;
+            color: #4CAF50;
+            opacity: 0.1;
+            pointer-events: none;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+        }
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+            background: linear-gradient(120deg, var(--background-dark), var(--background-light));
+        }
+
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: rgba(26, 31, 60, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: var(--primary-color);
+        }
+
+        .header-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .header-link {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .header-link:hover {
+            color: var(--primary-color);
+        }
+
+        /* Main Content */
+        .container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .login-wrapper {
+            display: flex;
+            gap: 4rem;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+            margin: auto;
+        }
+
+        .login-info {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .login-info h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary-color), #83ff86);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-info p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature i {
+            color: var(--primary-color);
+        }
+
+        .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 400px;  /* Largura ajustada */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin: 0 auto; /* Centraliza o card */
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 768px) {
+    .login-wrapper {
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .card {
+        width: 90%;  /* Ajusta a largura do card em telas pequenas */
+        max-width: 400px;
+    }
+
+    .features {
+        grid-template-columns: 1fr; /* Coloca as features em uma coluna */
+        text-align: center;
+    }
+}
+
+@media (max-width: 1024px) {
+    .login-wrapper {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    
+}
+
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Form Styles (Enhanced) */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .register-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(26, 31, 60, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            text-align: left;
+        }
+
+        .footer-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle 20s infinite linear;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .login-wrapper {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .login-info {
+                text-align: center;
+                padding: 0 1rem;
+            }
+
+            .features {
+                justify-content: center;
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .header-links {
+                display: none;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <!-- Header -->
+    <header class="header">
+        <a href="#" class="logo">
+            <i class="fas fa-leaf"></i>
+            ParispeEnergy
+        </a>
+        
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="login-wrapper">
+            <div class="login-info">
+                <h1>Bem-vindo!</h1>
+                <p>Faça seu login para acessar o melhor e mais sustentavél dasboard do planeta.</p>
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dados em tempo real</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Platforma segura</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-sync"></i>
+                        <span>Atualizações automaticas</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-users"></i>
+                        <span>Comunidade de acesso</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Entrar</h2>
+                    <p>Acesse sua conta</p>
+                </div>
+                    
+                <div class="social-login">
+                    <button class="social-btn">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button class="social-btn">
+                        <i class="fab fa-facebook-f"></i>
+                    </button>
+                    <button class="social-btn">
+                        <i class="fab fa-apple"></i>
+                    </button>
+                </div>
+
+                <div class="divider">ou continue com o email</div>
+                <div  id="login-card" >
+                    <form>
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="senha">Senha</label>
+                            <input type="password" id="senha" required>
+                        </div>
+                        <button type="submit" class="btn">Entrar</button>
+                        <a href="#" class="nav-link" onclick="showRegisterCard()">Criar uma conta</a>
+                    </form>
+                </div>
+            
+                <div id="register-card" style="display: none;">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Nome</label>
+                            <input type="text" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">E-mail</label>
+                            <input type="email" id="register-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-senha">Senha</label>
+                            <input type="password" id="register-senha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-senha">Confirmar Senha</label>
+                            <input type="password" id="confirm-senha" required>
+                        </div>
+                        <button type="submit" class="btn">Cadastrar</button>
+                        <a href="#" class="nav-link" onclick="showLoginCard()">Já tem uma conta? Login</a>
+                    </form>
+                </div>            
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Nossas funções</h3>
+                <ul>
+                    <li><a href="#" class="text-gray-400 hover:text-white">Dashboard</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Energia Renovável</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Dicas</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Sobre</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Sobre</h3>
+                <ul>
+                    <h4 class="text-xl font-bold mb-4">ParispeEnergy</h4>
+                    <p class="text-gray-400">Monitoramento inteligente de energia para um futuro sustentável.</p>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contato</h3>
+                <ul>
+                    <li class="text-gray-400">contato@parispeenergy.com</li>
+                        <li class="text-gray-400">(71) 99120-5204</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect</h3>
+                <ul>
+                    <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                    <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                    <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 ParispeEnergy. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <script>
+           function createEcoSymbols() {
+            const background = document.querySelector('.background');
+            for (let i = 0; i < 20; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'eco-symbol';
+                symbol.innerHTML = '♻';
+                
+                const size = Math.random() * 30 + 10;
+                symbol.style.fontSize = `${size}px`;
+                
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight;
+                symbol.style.left = `${startX}px`;
+                symbol.style.top = `${startY}px`;
+                
+                const moveX = (Math.random() - 0.5) * 200;
+                const moveY = (Math.random() - 0.5) * 200;
+                symbol.style.setProperty('--moveX', `${moveX}px`);
+                symbol.style.setProperty('--moveY', `${moveY}px`);
+                
+                symbol.style.animationDelay = `${Math.random() * 20}s`;
+                
+                background.appendChild(symbol);
+            }
+        }
+
+        createEcoSymbols();
+
+function showRegisterCard() {
+    document.getElementById('login-card').style.display = 'none';
+    document.getElementById('register-card').style.display = 'block';
+}
+
+function showLoginCard() {
+    document.getElementById('register-card').style.display = 'none';
+    document.getElementById('login-card').style.display = 'block';
+}
+
+// Email validation
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]+/)) strength++;
+    if (password.match(/[A-Z]+/)) strength++;
+    if (password.match(/[0-9]+/)) strength++;
+    if (password.match(/[!@#$%^&*(),.?":{}|<>]+/)) strength++;
+    
+    const strengthBar = document.getElementById('password-strength');
+    switch(strength) {
+        case 0:
+            strengthBar.style.width = '20%';
+            strengthBar.style.backgroundColor = '#ff4444';
+            break;
+        case 1:
+            strengthBar.style.width = '40%';
+            strengthBar.style.backgroundColor = '#ffbb33';
+            break;
+        case 2:
+            strengthBar.style.width = '60%';
+            strengthBar.style.backgroundColor = '#ffbb33';
+            break;
+        case 3:
+            strengthBar.style.width = '80%';
+            strengthBar.style.backgroundColor = '#00C851';
+            break;
+        case 4:
+        case 5:
+            strengthBar.style.width = '100%';
+            strengthBar.style.backgroundColor = '#007E33';
+            break;
+    }
+    return strength;
+}
+
+// Form validation
+function validateRegisterForm(event) {
+    event.preventDefault();
+    let isValid = true;
+    
+    // Name validation
+    const name = document.getElementById('name');
+    const nameError = document.getElementById('name-error');
+    if (name.value.length < 3) {
+        nameError.textContent = 'Nome deve ter pelo menos 3 caracteres';
+        nameError.style.display = 'block';
+        name.classList.add('invalid');
+        name.classList.add('shake');
+        isValid = false;
+    } else {
+        nameError.style.display = 'none';
+        name.classList.remove('invalid');
+        name.classList.add('valid');
+    }
+    
+    // Email validation
+    const email = document.getElementById('register-email');
+    const emailError = document.getElementById('email-error');
+    if (!isValidEmail(email.value)) {
+        emailError.textContent = 'Email inválido';
+        emailError.style.display = 'block';
+        email.classList.add('invalid');
+        email.classList.add('shake');
+        isValid = false;
+    } else {
+        emailError.style.display = 'none';
+        email.classList.remove('invalid');
+        email.classList.add('valid');
+    }
+    
+    // Password validation
+    const password = document.getElementById('register-senha');
+    const passwordError = document.getElementById('password-error');
+    const passwordStrength = checkPasswordStrength(password.value);
+    if (passwordStrength < 3) {
+        passwordError.textContent = 'A senha deve conter pelo menos 8 caracteres, incluindo maiúsculas, minúsculas e números';
+        passwordError.style.display = 'block';
+        password.classList.add('invalid');
+        password.classList.add('shake');
+        isValid = false;
+    } else {
+        passwordError.style.display = 'none';
+        password.classList.remove('invalid');
+        password.classList.add('valid');
+    }
+    
+    // Confirm password validation
+    const confirmPassword = document.getElementById('confirm-senha');
+    const confirmPasswordError = document.getElementById('confirm-password-error');
+    if (password.value !== confirmPassword.value) {
+        confirmPasswordError.textContent = 'As senhas não coincidem';
+        confirmPasswordError.style.display = 'block';
+        confirmPassword.classList.add('invalid');
+        confirmPassword.classList.add('shake');
+        isValid = false;
+    } else {
+        confirmPasswordError.style.display = 'none';
+        confirmPassword.classList.remove('invalid');
+        confirmPassword.classList.add('valid');
+    }
+    
+    // Remove shake animation after it completes
+    setTimeout(() => {
+        document.querySelectorAll('.shake').forEach(element => {
+            element.classList.remove('shake');
+        });
+    }, 500);
+    
+    if (isValid) {
+        // Here you would typically send the form data to your server
+        alert('Cadastro realizado com sucesso!');
+        showLoginCard();
+    }
+    
+    return false;
+}
+
+// Real-time password strength checking
+document.getElementById('register-senha').addEventListener('input', function() {
+    checkPasswordStrength(this.value);
+});
+
+// Remove validation classes on input
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', function() {
+        this.classList.remove('invalid');
+        this.classList.remove('valid');
+        const errorMessage = this.parentElement.querySelector('.error-message');
+        if (errorMessage) {
+            errorMessage.style.display = 'none';
+        }
+    });
+});
+    </script>
+</body>
+</html>
