@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>Dicas de Economia de Energia</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet">
+    <style>
+        .background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(120deg, #1a1f3c, #2a2f4c);
+}
+
+.eco-symbol {
+    position: absolute;
+    color: #4CAF50;
+    opacity: 0.1;
+    pointer-events: none;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+}
+
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .eco-symbol {
+            position: absolute;
+            color: #4CAF50;
+            opacity: 0.1;
+            pointer-events: none;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+        }
+
+        .hero-text {
+            background: linear-gradient(45deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientFlow 5s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="background"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-lg z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-leaf text-green-500 text-2xl mr-2"></i>
+                    <span class="text-xl font-bold">ParispeEnergy</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link">Início</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="renewables.html" class="nav-link">Energia Renovável</a>
+                    <a href="tips.html" class="nav-link">Dicas</a>
+                    <a href="about.html" class="nav-link">Sobre</a>
+                </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Tips Section -->
+    <section class="pt-32 pb-20">
+        <div class="container mx-auto px-6">
+            <h1 class="text-5xl font-bold text-center hero-text mb-8">Dicas de Economia de Energia</h1>
+            <p class="text-gray-300 text-center text-xl mb-12">
+                Pequenas mudanças no dia a dia podem fazer uma grande diferença no consumo de energia e no impacto ambiental.
+                Veja nossas dicas práticas e sustentáveis para economizar energia e contribuir para um planeta mais verde.
+            </p>
+
+            <!-- Tips Cards Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card p-6 rounded-lg hover: transform hover:-translate-y-2">
+                    <i class="fas fa-lightbulb text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-4">Substitua por Lâmpadas LED</h3>
+                    <p class="text-gray-300">As lâmpadas LED consomem até 80% menos energia que lâmpadas incandescentes e duram muito mais, economizando energia e reduzindo custos ao longo do tempo.</p>
+                    <a href="#" class="text-green-300 hover:text-green-500 mt-4 inline-block">Saiba mais</a>
+                </div>
+                <div class="card p-6 rounded-lg hover: hover:-translate-y-2">
+                    <i class="fas fa-sun text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-4">Aproveite a Luz Natural</h3>
+                    <p class="text-gray-300">Sempre que possível, aproveite a luz natural para iluminar seus espaços. Isso reduz o uso de luzes artificiais e cria um ambiente mais agradável.</p>
+                    <a href="#" class="text-green-300 hover:text-green-500 mt-4 inline-block">Saiba mais</a>
+                </div>
+                <div class="card p-6 rounded-lg hover:hover:-translate-y-2">
+                    <i class="fas fa-plug text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-4">Desconecte Aparelhos</h3>
+                    <p class="text-gray-300">Aparelhos em stand-by ainda consomem energia. Desconecte eletrônicos da tomada quando não estiverem em uso para economizar até 10% na conta de luz.</p>
+                    <a href="#" class="text-green-300 hover:text-green-500 mt-4 inline-block">Saiba mais</a>
+                </div>
+                <div class="card p-6 rounded-lg hover:hover:-translate-y-2">
+                    <i class="fas fa-fan text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-4">Ventilação Natural</h3>
+                    <p class="text-gray-300">Use ventilação natural em dias mais frescos e evite o uso do ar condicionado. Reduz o consumo de energia e melhora a circulação de ar.</p>
+                    <a href="#" class="text-green-300 hover:text-green-500 mt-4 inline-block">Saiba mais</a>
+                </div>
+                <div class="card p-6 rounded-lg hover:hover:-translate-y-2">
+                    <i class="fas fa-water text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-4">Instale Aquecedores Solares</h3>
+                    <p class="text-gray-300">Aquecedores solares para água são uma opção sustentável que utiliza energia do sol, reduzindo o uso de energia elétrica para aquecimento.</p>
+                    <a href="#" class="text-green-300 hover:text-green-500 mt-4 inline-block">Saiba mais</a>
+                </div>
+                <div class="card p-6 rounded-lg hover:hover:-translate-y-2">
+                    <i class="fas fa-recycle text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-4">Faça Manutenção de Eletrodomésticos</h3>
+                    <p class="text-gray-300">Equipamentos antigos e sem manutenção consomem mais energia. Limpe filtros, verifique o isolamento e mantenha seu consumo eficiente.</p>
+                    <a href="#" class="text-green-300 hover:text-green-500 mt-4 inline-block">Saiba mais</a>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <section class="mt-16 text-center">
+                <h2 class="text-4xl font-bold mb-6">Faça a sua parte para um futuro sustentável!</h2>
+                <p class="text-gray-400 mb-8">Implementar essas dicas no seu dia a dia pode contribuir para a preservação do meio ambiente e para uma economia mais sustentável.</p>
+                <a href="dashboard.html" class="bg-green-500 hover:bg-green-600 text-white px-12 py-4 rounded-lg text-lg transition duration-300">Acessar Dashboard</a>
+            </section>
+        </div>
+    </section>
+    <script>
+        function createEcoSymbols() {
+    const background = document.querySelector('.background');
+    for (let i = 0; i < 20; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'eco-symbol';
+        symbol.innerHTML = '♻';
+
+        const size = Math.random() * 30 + 10;
+        symbol.style.fontSize = `${size}px`;
+
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        symbol.style.left = `${startX}px`;
+        symbol.style.top = `${startY}px`;
+
+        const moveX = (Math.random() - 0.5) * 200;
+        const moveY = (Math.random() - 0.5) * 200;
+        symbol.style.setProperty('--moveX', `${moveX}px`);
+        symbol.style.setProperty('--moveY', `${moveY}px`);
+
+        symbol.style.animationDelay = `${Math.random() * 20}s`;
+
+        background.appendChild(symbol);
+    }
+}
+
+createEcoSymbols();
+
+    </script>
+</body>
+</html>

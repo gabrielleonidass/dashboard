@@ -1,0 +1,247 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Monitoramento Energético</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(120deg, #1a1f3c, #2a2f4c);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .eco-symbol {
+            position: absolute;
+            color: #4CAF50;
+            opacity: 0.1;
+            pointer-events: none;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+        }
+
+        .hero-text {
+            background: linear-gradient(45deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientFlow 5s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="background"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-lg z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-leaf text-green-500 text-2xl mr-2"></i>
+                    <span class="text-xl font-bold">ParispeEnergy</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link">Início</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="renewables.html" class="nav-link">Energia Renovável</a>
+                    <a href="tips.html" class="nav-link">Dicas</a>
+                    <a href="about.html" class="nav-link">Sobre</a>
+                </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2">
+                    <h1 class="text-5xl font-bold mb-6 hero-text">
+                        Monitore e Otimize seu Consumo de Energia
+                    </h1>
+                    <p class="text-gray-300 text-xl mb-8">
+                        Uma solução inteligente para acompanhar, analisar e reduzir seu consumo energético em tempo real.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="dashboard.html" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg transition duration-300">
+                            Começar Agora
+                        </a>
+                        <a href="about.html" class="border border-white hover:bg-white hover:text-gray-900 text-white px-8 py-3 rounded-lg transition duration-300">
+                            Saiba Mais
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 mt-12 md:mt-0">
+                    <img src="https://picsum.photos/600/400?random=1" alt="Energy Dashboard" class="rounded-lg shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-gray-800 bg-opacity-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16">Recursos Principais</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-8 rounded-lg">
+                    <i class="fas fa-chart-line text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-4">Monitoramento em Tempo Real</h3>
+                    <p class="text-gray-300">Acompanhe seu consumo energético com atualizações instantâneas e gráficos detalhados.</p>
+                </div>
+                <div class="card p-8 rounded-lg">
+                    <i class="fas fa-solar-panel text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-4">Energia Renovável</h3>
+                    <p class="text-gray-300">Analise o potencial de energia solar e outras fontes renováveis para sua residência.</p>
+                </div>
+                <div class="card p-8 rounded-lg">
+                    <i class="fas fa-lightbulb text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-4">Dicas de Economia</h3>
+                    <p class="text-gray-300">Receba sugestões personalizadas para reduzir seu consumo e economizar energia.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-8">Pronto para começar?</h2>
+            <p class="text-xl text-gray-300 mb-8">Junte-se a milhares de usuários que já estão economizando energia e contribuindo para um futuro mais sustentável.</p>
+            <a href="dashboard.html" class="bg-green-500 hover:bg-green-600 text-white px-12 py-4 rounded-lg text-lg transition duration-300">
+                Acessar Dashboard
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 bg-opacity-90 py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">ParispeEnergy</h4>
+                    <p class="text-gray-400">Monitoramento inteligente de energia para um futuro sustentável.</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Links Rápidos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="dashboard.html" class="text-gray-400 hover:text-white">Dashboard</a></li>
+                        <li><a href="renewables.html" class="text-gray-400 hover:text-white">Energia Renovável</a></li>
+                        <li><a href="tips.html" class="text-gray-400 hover:text-white">Dicas</a></li>
+                        <li><a href="about.html" class="text-gray-400 hover:text-white">Sobre</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Contato</h4>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">contato@parispeenergy.com</li>
+                        <li class="text-gray-400">(71) 99120-5204</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Redes Sociais</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 ParispeEnergy. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        
+        // Background Animation
+        function createEcoSymbols() {
+            const background = document.querySelector('.background');
+            for (let i = 0; i < 20; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'eco-symbol';
+                symbol.innerHTML = '♻';
+                
+                const size = Math.random() * 30 + 10;
+                symbol.style.fontSize = `${size}px`;
+                
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight;
+                symbol.style.left = `${startX}px`;
+                symbol.style.top = `${startY}px`;
+                
+                const moveX = (Math.random() - 0.5) * 200;
+                const moveY = (Math.random() - 0.5) * 200;
+                symbol.style.setProperty('--moveX', `${moveX}px`);
+                symbol.style.setProperty('--moveY', `${moveY}px`);
+                
+                symbol.style.animationDelay = `${Math.random() * 20}s`;
+                
+                background.appendChild(symbol);
+            }
+        }
+
+        createEcoSymbols();
+
+        // Mobile Menu Toggle
+        const menuButton = document.querySelector('button');
+        const navLinks = document.querySelector('.md\\:flex');
+
+        menuButton.addEventListener('click', () => {
+            navLinks.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
