@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -754,4 +755,215 @@ document.querySelectorAll('input').forEach(input => {
 });
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Login/Cadastro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }  
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(120deg, #1a1f3c, #2a2f4c);
+        }
+
+        .eco-symbol {
+            position: absolute;
+            color: #4CAF50;
+            opacity: 0.1;
+            pointer-events: none;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: auto;
+            margin-top: 100px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .nav-link {
+            position: relative;
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #4CAF50;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #0000;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:focus, .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="card" id="login-card">
+        <h2 class="center-text" style="color: #fff;">Login</h2>
+        <form>
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" required>
+            </div>
+            <button type="submit" class="btn">Entrar</button>
+            <a href="#" class="nav-link" onclick="showRegisterCard()">Criar uma conta</a>
+        </form>
+    </div>
+
+    <div class="card" id="register-card" style="display: none;">
+        <h2 class="center-text" style="color: #fff;">Cadastro</h2>
+        <form>
+            <div class="form-group">
+                <label for="name">Nome</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="register-email">E-mail</label>
+                <input type="email" id="register-email" required>
+            </div>
+            <div class="form-group">
+                <label for="register-senha">Senha</label>
+                <input type="password" id="register-senha" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-senha">Confirmar Senha</label>
+                <input type="password" id="confirm-senha" required>
+            </div>
+            <button type="submit" class="btn">Cadastrar</button>
+            <a href="#" class="nav-link" onclick="showLoginCard()">Já tem uma conta? Login</a>
+        </form>
+    </div>
+
+    <script>
+        function createEcoSymbols() {
+            const background = document.querySelector('.background');
+            for (let i = 0; i < 20; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'eco-symbol';
+                symbol.innerHTML = '♻';
+                
+                const size = Math.random() * 30 + 10;
+                symbol.style.fontSize = `${size}px`;
+                
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight;
+                symbol.style.left = `${startX}px`;
+                symbol.style.top = `${startY}px`;
+                
+                const moveX = (Math.random() - 0.5) * 200;
+                const moveY = (Math.random() - 0.5) * 200;
+                symbol.style.setProperty('--moveX', `${moveX}px`);
+                symbol.style.setProperty('--moveY', `${moveY}px`);
+                
+                symbol.style.animationDelay = `${Math.random() * 20}s`;
+                
+                background.appendChild(symbol);
+            }
+        }
+
+        createEcoSymbols();
+
+        function showRegisterCard() {
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('register-card').style.display = 'block';
+        }
+
+        function showLoginCard() {
+            document.getElementById('register-card').style.display = 'none';
+            document.getElementById('login-card').style.display = 'block';
+        }
+    </script>
+</body>
+>>>>>>> e64e1a45b7b41c264c68a5cc5793fd63df3f61c5
 </html>

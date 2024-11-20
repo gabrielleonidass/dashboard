@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+<<<<<<< HEAD
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "express": "^4.21.1",
@@ -18,5 +19,8 @@
     "node.js": "^0.0.1-security",
     "passport": "^0.7.0",
     "path": "^0.12.7"
+=======
+    "express": "^4.21.1"
+>>>>>>> e64e1a45b7b41c264c68a5cc5793fd63df3f61c5
   }
 }
