@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comunidade EcoForum</title>
+    <title>Comunidade</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     
@@ -597,15 +597,29 @@ transition: background 0.3s;
 
             postContent.addEventListener('input', updateCharCount);
 
-            publishBtn.addEventListener('click', () => {
-                const content = postContent.value;
-                if (content.trim() !== '') {
-                    createNewPost(content);
-                    modal.style.display = 'none';
-                    postContent.value = '';
-                    updateCharCount();
-                }
-            });
+            publishBtn.addEventListener('click', async () => {
+    const content = postContent.value;
+    if (content.trim() !== '') {
+        // Enviar a postagem para o servidor
+        const response = await fetch('http://localhost:3000/posts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuario_id: 1, content: content }) // Altere user_id para usuario_id
+});
+
+
+        const result = await response.json();
+        if (result.message === 'Postagem criada com sucesso!') {
+            createNewPost(content);
+        } else {
+            alert('Erro ao publicar a postagem');
+        }
+
+        modal.style.display = 'none';
+        postContent.value = '';
+        updateCharCount();
+    }
+});
 
             function createNewPost(content) {
     const post = document.createElement('div');
@@ -648,6 +662,26 @@ transition: background 0.3s;
             </div>
         </div>
     `;
+    document.querySelectorAll('.like-btn').forEach((likeBtn) => {
+    likeBtn.addEventListener('click', async (event) => {
+        const postId = event.target.closest('.post').dataset.postId;
+        const userId = 1; // Altere para o ID do usuário logado
+
+        const response = await fetch('http://localhost:3000/likes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuario_id: userId, post_id: postId }) // Altere user_id para usuario_id
+});
+
+
+        const result = await response.json();
+        if (result.message === 'Postagem curtida com sucesso!') {
+            // Atualizar a interface
+            const likeCount = event.target.querySelector('span');
+            likeCount.textContent = parseInt(likeCount.textContent) + 1;
+        }
+    });
+});
 
     // Adiciona o novo post no início do feed
     feed.insertBefore(post, feed.firstChild);
