@@ -3,15 +3,19 @@ const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const path = require('path');
+const session = require('express-session');
+const multer = require('multer')
 
 const app = express();
 app.use(bodyParser.json());
+app.use('/img', express.static(path.join(__dirname, 'img')));
+
 
 // Conexão com o banco de dados
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '3571',
+    password: 'ps060406',
     database: 'banco'
 });
 
@@ -19,6 +23,54 @@ db.connect((err) => {
     if (err) throw err;
     console.log('Conectado ao banco de dados!');
 });
+
+// configuração da sessão
+app.use(session({
+  secret: 'seuSegredoAqui',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  }
+}));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, 'img')); 
+  },
+  filename: (req, file, cb) => {
+      const userId = req.session.user.id;
+      const ext = path.extname(file.originalname);
+      cb(null, `profile_${userId}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+      fileSize: 5 * 1024 * 1024 // 5MB
+  },
+  fileFilter: function (req, file, cb) {
+      const filetypes = /jpeg|jpg|png|gif/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      if (mimetype && extname) {
+          return cb(null, true);
+      }
+      cb(new Error('Apenas imagens são permitidas!'));
+  }
+});
+
+// middleware para verificar autenticação em rotas protegidas
+function verificarAutenticacao(req, res, next) {
+if (!req.session.user) {
+  return res.status(401).json({ message: 'Usuário não autenticado' });
+} else{
+  next(); // usuário autenticado, segue para a rota
+}
+};
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
@@ -46,6 +98,10 @@ app.get('/about.html', (req, res) => {
 
 app.get('/comunity.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'comunity.html'));
+});
+
+app.get('/profile.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'profile.html'));
 });
 
 app.post('/posts', (req, res) => {
@@ -95,55 +151,209 @@ app.get('/posts', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-    const { nome, email, senha } = req.body;
+  const { nome, email, senha } = req.body;
 
-    try {
-        const hashedPassword = await bcrypt.hash(senha, 10);
-        const query = 'INSERT INTO usuario (nome, email, senha) VALUES (?, ?, ?)';
-        db.query(query, [nome, email, hashedPassword], (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ message: 'Erro ao cadastrar usuário.' });
-            }
-            res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Erro no servidor.' });
-    }
+  try {
+      const hashedPassword = await bcrypt.hash(senha, 10);
+
+      const query = 'INSERT INTO usuario (nome, email, senha) VALUES (?, ?, ?)';
+      db.query(query, [nome, email, hashedPassword], (err, result) => {
+          if (err) {
+              console.error(err);
+              return res.status(500).json({ message: 'Erro ao cadastrar usuário.' });
+          }
+
+          req.session.user = {
+              id: result.insertId, // ID do usuário gerado automaticamente
+              nome: nome,
+              email: email
+          };
+
+          res.status(201).json({
+              message: 'Usuário cadastrado com sucesso!',
+              user: req.session.user
+
+          });
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro no servidor.' });
+  }
 });
 
-// Rota para login
+
 app.post('/login', (req, res) => {
-    const { email, senha } = req.body;
+  const { email, senha } = req.body;
 
-    const query = 'SELECT * FROM usuario WHERE email = ?';
-    db.query(query, [email], async (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ message: 'Erro no servidor.' });
-        }
+  const query = 'SELECT * FROM usuario WHERE email = ?';
+  db.query(query, [email], async (err, results) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Erro no servidor.' });
+      }
 
-        if (results.length === 0) {
-            return res.status(404).json({ message: 'Usuário não encontrado.' });
-        }
+      if (results.length === 0) {
+          return res.status(404).json({ message: 'Usuário não encontrado.' });
+      }
 
-        const user = results[0];
-        const isPasswordValid = await bcrypt.compare(senha, user.senha);
+      const user = results[0];
+      const isPasswordValid = await bcrypt.compare(senha, user.senha);
 
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Senha inválida.' });
-        }
+      if (!isPasswordValid) {
+          return res.status(401).json({ message: 'Senha inválida.' });
+      }
 
-        res.status(200).json({
-            message: 'Login bem-sucedido!',
-            user: {
-                id: user.id,
-                nome: user.nome,
-                email: user.email
-            }
-        });
-    });
+          req.session.user = {
+          id: user.id,
+          nome: user.nome,
+          email: user.email
+      };
+
+      res.status(200).json({
+          message: 'Login bem-sucedido!',
+          user: req.session.user
+      });
+      console.log('Usuário logado:', req.session.user);
+  });
 });
+
+app.get('/getUserData', verificarAutenticacao, (req, res) => {
+  const usuarioId = req.session.user.id;
+
+  const query = 'SELECT nome, email, senha, profilePic FROM usuario WHERE id = ?';
+  db.query(query, [usuarioId], (err, results) => {
+    if (err) {
+        return res.status(500).json({ message: 'Erro ao buscar dados do usuário' });
+    }
+    if (results.length === 0) {
+        return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+    res.json(results[0]);
+});
+});
+
+app.get('/user', verificarAutenticacao, (req, res) => {
+  const userId = req.session.user.id;
+
+  const query = 'SELECT nome, email, senha, profilePic FROM usuario WHERE id = ?';
+  db.query(query, [userId], (err, results) => {
+      if (err) {
+          return res.status(500).json({ message: 'Erro ao buscar dados do usuário' });
+      }
+      if (results.length === 0) {
+          return res.status(404).json({ message: 'Usuário não encontrado' });
+      }
+
+      const user = results[0];
+      user.profilePic = user.profilePic || 'default.jpg';
+      res.json(user);
+  });
+});
+
+app.post('/upload-profile-image', verificarAutenticacao, upload.single('profilePic'), async (req, res) => {
+  if (!req.file) {
+      return res.status(400).json({ message: 'Nenhum arquivo foi enviado' });
+  }
+
+  try {
+      const userId = req.session.user.id;
+      const imagePath = req.file.filename;
+
+      const query = 'UPDATE usuario SET profilePic = ? WHERE id = ?';
+      db.query(query, [imagePath, userId], (err) => {
+          if (err) {
+              console.error('Erro ao atualizar foto de perfil no banco:', err);
+              return res.status(500).json({ message: 'Erro ao atualizar foto' });
+          }
+          res.json({
+              message: 'Imagem atualizada com sucesso!',
+              filename: imagePath
+          });
+      });
+  } catch (error) {
+      console.error('Erro no upload de imagem:', error);
+      res.status(500).json({ message: 'Erro no upload de imagem' });
+  }
+});
+
+app.post('/atualizarPerfil', verificarAutenticacao, async (req, res) => {
+  const { nome, email, senha } = req.body;
+  const userId = req.session.user.id;
+
+  const hashedPassword = await bcrypt.hash(senha, 10);
+   const query = 'UPDATE usuario SET nome = ?, email = ?, senha = ? WHERE id = ?';
+  db.query(query, [nome, email, senha, userId], (err) => {
+      if (err) {
+          console.error('Erro ao atualizar perfil:', err);
+          return res.status(500).json({ message: 'Erro ao atualizar perfil' });
+      }
+      res.json({ message: 'Perfil atualizado com sucesso!' });
+  });
+});
+
+app.post('/atualizarSenha', verificarAutenticacao, async (req, res) => {
+  const { senhaAtual, novaSenha } = req.body;
+
+  if (!novaSenha) {
+      return res.status(400).json({ message: 'Nova senha não fornecida.' });
+  }
+
+  const userId = req.session.user.id;
+
+  const query = 'SELECT senha FROM usuario WHERE id = ?';
+  db.query(query, [userId], async (err, results) => {
+      if (err) {
+          console.error('Erro ao buscar senha atual:', err);
+          return res.status(500).json({ message: 'Erro ao verificar senha atual.' });
+      }
+
+      if (results.length === 0) {
+          return res.status(404).json({ message: 'Usuário não encontrado.' });
+      }
+
+      const senhaHash = results[0].senha;
+
+      // Comparar senha atual
+      const senhaCorreta = await bcrypt.compare(senhaAtual, senhaHash);
+      if (!senhaCorreta) {
+          return res.status(401).json({ message: 'Senha atual incorreta.' });
+      }
+
+      try {
+          // Gerar hash da nova senha
+          const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+          const updateQuery = 'UPDATE usuario SET senha = ? WHERE id = ?';
+
+          db.query(updateQuery, [novaSenhaHash, userId], (err) => {
+              if (err) {
+                  console.error('Erro ao atualizar senha:', err);
+                  return res.status(500).json({ message: 'Erro ao atualizar senha.' });
+              }
+
+              res.status(200).json({ message: 'Senha atualizada com sucesso!' });
+          });
+      } catch (error) {
+          console.error('Erro ao hash a nova senha:', error);
+          res.status(500).json({ message: 'Erro ao processar a nova senha.' });
+      }
+  });
+});
+
+// rota de logout
+app.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+      if (err) {
+          return res.status(500).json({ message: 'Erro ao encerrar sessão.' });
+      }
+      res.status(200).json({ message: 'Logout realizado com sucesso!' });
+  });
+});
+
+async function atualizarSenha(email, novaSenha) {
+  const hashedPassword = await bcrypt.hash(novaSenha, 10);
+  const query = 'UPDATE usuarios SET senha = ? WHERE email = ?';
+  await db.query(query, [hashedPassword, email]);
+}
 
 // Servidor rodando
 const PORT = 3000;

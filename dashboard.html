@@ -105,6 +105,19 @@
         .nav-link:hover::after {
             width: 100%;
         }
+
+        #profilePic {
+    height: 35px;
+    width: 35px;
+    aspect-ratio: 1 / 1; /* Mantém o formato quadrado */
+    border-radius: 50%; /* Torna a imagem circular */
+    border: 2px solid #4CAF50; /* Borda para destacar */
+    transition: transform 0.6s ease; /* Efeito hover opcional */
+}
+
+#profilePic:hover {
+    transform: scale(1.1); /* Efeito de zoom no hover */
+}
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -125,7 +138,11 @@
                     <a href="tips.html" class="nav-link">Dicas</a>
                     <a href="about.html" class="nav-link">Sobre</a>
                     <a href="comunity.html" class="nav-link">Comunidade</a>
-                </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="profile.html" id="user">
+                            <img src="profile-picture.jpg" alt="Foto de Perfil" id="profilePic">
+                        </a>
+                    </div>
                 <button class="md:hidden">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -419,6 +436,33 @@
 }
 
 createEcoSymbols();
+
+window.onload = function () {
+    fetch('/user')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Usuário não autenticado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const profilePicPath = data.profilePic ? `/img/${data.profilePic}` : '/img/default.jpg';
+            const profilePicElement = document.getElementById('profilePic');
+
+            profilePicElement.src = profilePicPath;
+
+        })
+        .catch(error => {
+            console.error('Erro ao carregar os dados do usuário:', error);
+            document.getElementById('profilePic').src = '/img/default.jpg';
+        });
+};
+
+    const profilePicPath = data.profilePic 
+      ? `/img/${data.profilePic}?t=${new Date().getTime()}` 
+      : '/img/default.jpg';
+    profilePicElement.src = profilePicPath;
+
 
         
     </script>
