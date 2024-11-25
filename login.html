@@ -430,6 +430,31 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Estilo para o link de navegação */
+.nav-link {
+    text-decoration: none; /* Remove o sublinhado padrão */
+    color: #ffffff; /* Cor do texto */
+    font-size: 15px; /* Tamanho da fonte */
+    font-weight: bold; /* Deixa o texto em negrito */
+    padding: 15px 0px; /* Espaçamento interno para tornar o link mais clicável */
+    transition: background-color 0.3s, color 0.3s; /* Efeito suave para a mudança de cor */
+}
+
+/* Efeito de hover (quando o mouse passa sobre o link) */
+.nav-link:hover {
+
+    color: #b9b2b2; /* Cor do texto ao passar o mouse */
+    cursor: pointer; /* Aponta o cursor para indicar que é clicável */
+}
+
+/* Efeito de foco (quando o link é selecionado) */
+.nav-link:focus {
+    outline: none; /* Remove o contorno padrão do foco */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Adiciona uma sombra ao redor */
+}
+
+        
     </style>
 </head>
 <body>
@@ -462,10 +487,7 @@
                         <i class="fas fa-sync"></i>
                         <span>Atualizações automaticas</span>
                     </div>
-                    <div class="feature">
-                        <i class="fas fa-users"></i>
-                        <span>Comunidade de acesso</span>
-                    </div>
+                   
                 </div>
             </div>
 
@@ -479,12 +501,7 @@
                     <button class="social-btn">
                         <i class="fab fa-google"></i>
                     </button>
-                    <button class="social-btn">
-                        <i class="fab fa-facebook-f"></i>
-                    </button>
-                    <button class="social-btn">
-                        <i class="fab fa-apple"></i>
-                    </button>
+                    
                 </div>
 
                 <div class="divider">ou continue com o email</div>

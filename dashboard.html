@@ -6,6 +6,7 @@
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .background {
@@ -105,6 +106,19 @@
         .nav-link:hover::after {
             width: 100%;
         }
+
+        #profilePic {
+    height: 35px;
+    width: 35px;
+    aspect-ratio: 1 / 1; /* Mantém o formato quadrado */
+    border-radius: 50%; /* Torna a imagem circular */
+    border: 2px solid #4CAF50; /* Borda para destacar */
+    transition: transform 0.6s ease; /* Efeito hover opcional */
+}
+
+#profilePic:hover {
+    transform: scale(1.1); /* Efeito de zoom no hover */
+}
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -124,8 +138,11 @@
                     <a href="renewables.html" class="nav-link">Energia Renovável</a>
                     <a href="tips.html" class="nav-link">Dicas</a>
                     <a href="about.html" class="nav-link">Sobre</a>
-                    <a href="comunity.html" class="nav-link">Comunidade</a>
-                </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="profile.html" id="user">
+                            <img src="profile-picture.jpg" alt="Foto de Perfil" id="profilePic">
+                        </a>
+                    </div>
                 <button class="md:hidden">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -140,9 +157,11 @@
             <div class="flex flex-col md:flex-row justify-between items-center mb-8">
                 <h1 class="text-3xl font-bold mb-4 md:mb-0">Dashboard de Energia</h1>
                 <div class="flex space-x-4">
-                    <button class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition duration-300">
-                        <i class="fas fa-download mr-2"></i>Exportar Dados
+                    <button onclick="importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC, consumoSAC, distribuicaoAparelhos)" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition duration-300">
+                        <i class="fas fa-download mr-2"></i>Exportar Dados (Excel)
                     </button>
+                           
+                    
                     <button class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition duration-300">
                         <i class="fas fa-sync-alt mr-2"></i>Atualizar
                     </button>
@@ -306,7 +325,76 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
     <script>
+
+   // Função para exportar dados para o Excel
+function importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC, consumoSAC, distribuicaoAparelhos) {
+    // Criação de uma nova planilha do Excel
+    const wb = XLSX.utils.book_new();
+    wb.Props = {
+        Title: "Relatório de Consumo de Energia",
+        Subject: "Consumo de Energia",
+        Author: "Sistema de Gestão",
+        CreatedDate: new Date()
+    };
+
+    // Cabeçalhos da planilha
+    const headers = [
+        'Data',
+        'Consumo de Hoje (kWh)',
+        'Consumo Mensal (kWh)',
+        'Custo Estimado (R$)',
+        'Economia de CO2 (kg)',
+        'Consumo com Ar Condicionado (kWh)',
+        'Consumo sem Ar Condicionado (kWh)',
+        'Distribuição de Energia'
+    ];
+
+    // Calculando valores adicionais
+    const custoEstimado = consumoMensal * tarifa;  // Cálculo do custo estimado
+    const economiaCO2 = consumoMensal * emissaoCO2;  // Economia de CO2
+
+    // Data atual
+    const dataAtual = new Date().toLocaleString();
+
+    // Dados a serem inseridos na planilha
+    const row = [
+        dataAtual,
+        consumoHoje,
+        consumoMensal,
+        custoEstimado,
+        economiaCO2,
+        consumoAC,
+        consumoSAC,
+        distribuicaoAparelhos
+    ];
+
+    // Criação da planilha com os dados
+    const ws = XLSX.utils.aoa_to_sheet([headers, row]);
+
+    // Adicionando a planilha ao arquivo Excel
+    XLSX.utils.book_append_sheet(wb, ws, "Consumo de Energia");
+
+    // Exporta o arquivo Excel
+    XLSX.writeFile(wb, "relatorio_consumo.xlsx");
+}
+
+// Exemplos de dados para exportação
+const consumoHoje = 15;  // kWh
+const consumoMensal = 450;  // kWh
+const tarifa = 0.33;  // R$ por kWh
+const emissaoCO2 = 0.5;  // kg de CO2 por kWh
+const consumoAC = 250;  // kWh
+const consumoSAC = 200;  // kWh
+const distribuicaoAparelhos = "Ar Condicionado: 30%, Geladeira: 15%, Televisão: 10%, Iluminação: 5%, Outros: 40%";  // Exemplo de distribuição de energia
+
+// Chama a função para exportar os dados
+importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC, consumoSAC, distribuicaoAparelhos);
+
+
+
         // Charts Configuration
         const dailyCtx = document.getElementById('dailyConsumption').getContext('2d');
         const deviceCtx = document.getElementById('deviceConsumption').getContext('2d');
@@ -419,6 +507,33 @@
 }
 
 createEcoSymbols();
+
+window.onload = function () {
+    fetch('/user')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Usuário não autenticado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const profilePicPath = data.profilePic ? `/img/${data.profilePic}` : '/img/default.jpg';
+            const profilePicElement = document.getElementById('profilePic');
+
+            profilePicElement.src = profilePicPath;
+
+        })
+        .catch(error => {
+            console.error('Erro ao carregar os dados do usuário:', error);
+            document.getElementById('profilePic').src = '/img/default.jpg';
+        });
+};
+
+    const profilePicPath = data.profilePic 
+      ? `/img/${data.profilePic}?t=${new Date().getTime()}` 
+      : '/img/default.jpg';
+    profilePicElement.src = profilePicPath;
+
 
         
     </script>
