@@ -15,7 +15,7 @@ app.use('/img', express.static(path.join(__dirname, 'img')));
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'ps060406',
+    password: '3571',
     database: 'banco'
 });
 
@@ -96,8 +96,8 @@ app.get('/about.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'about.html'));
 });
 
-app.get('/comunity.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'comunity.html'));
+app.get('/conversion.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'conversion.html'));
 });
 
 app.get('/profile.html', (req, res) => {
@@ -356,7 +356,7 @@ async function atualizarSenha(email, novaSenha) {
 }
 
 // Servidor rodando
-const PORT = 3000;
+const PORT = 300;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

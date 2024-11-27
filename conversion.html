@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParispeEnergy - Calculadora de Energia</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --background-dark: #1a1f3c;
+            --background-light: #2a2f4c;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(120deg, var(--background-dark), var(--background-light));
+        }
+
+        .eco-symbol {
+    position: absolute;
+    color: #4CAF50;
+    opacity: 0.1;
+    pointer-events: none;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+}
+
+.nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 100px auto 0;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            color: var(--primary-color);
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .results {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            100% {
+                left: 100%;
+            }
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div id="ecoParticles"></div>
+
+    
+    <nav class="fixed top-0 w-full bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-lg z-50">
+        <div class="container mx-auto px-6 py-4">
+            
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-leaf text-green-500 text-2xl mr-2"></i>
+                    <span class="text-xl font-bold">ParispeEnergy</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link">Início</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="renewables.html" class="nav-link">Energia Renovável</a>
+                    <a href="tips.html" class="nav-link">Dicas</a>
+                    <a href="about.html" class="nav-link">Sobre</a>
+                    <a href="conversion.html" class="nav-link">Biomassa</a>
+                    <div class="flex items-center space-x-4">
+                        <a href="profile.html" id="user">
+                            <img src="img/default.jpg" alt="Foto de Perfil" id="profilePic" class="h-9 w-9 rounded-full border-2 border-green-500 transition-transform duration-300 hover:scale-110">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+
+    <div class="main-container">
+        <h1 class="text-5xl font-bold text-center hero-text mb-8">Conversão de resíduo orgânico em energia</h1>
+            <p class="text-gray-300 text-center text-xl mb-12">
+                Transforme seus resíduos orgânicos em energia limpa e renovável. Verifique com quantos quilos de material orgânico podemos converter em energia.</p>
+
+        <div class="card">
+            <h2 class="text-2xl font-bold mb-6">Calculadora de Energia Renovável</h2>
+            <div class="mb-6">
+                <input type="number" id="material" class="input-field" placeholder="Quantidade de material orgânico (kg)">
+                <button onclick="calcularEnergia()" class="w-full">
+                    Calcular Energia <i class="fas fa-bolt ml-2"></i>
+                </button>
+            </div>
+
+            <div class="results">
+                <div class="stat-card">
+                    <i class="fas fa-plug fa-2x text-green-500 mb-4"></i>
+                    <h3 class="text-lg mb-2">Energia Gerada</h3>
+                    <div class="stat-value" id="energiaGerada">0 kWh</div>
+                </div>
+
+                <div class="stat-card">
+                    <i class="fas fa-calendar-day fa-2x text-green-500 mb-4"></i>
+                    <h3 class="text-lg mb-2">Dias de Consumo</h3>
+                    <div class="stat-value" id="diasConsumo">0 dias</div>
+                </div>
+
+                <div class="stat-card">
+                    <i class="fas fa-tree fa-2x text-green-500 mb-4"></i>
+                    <h3 class="text-lg mb-2">Impacto Ambiental</h3>
+                    <div class="stat-value" id="impactoAmbiental">0 kg CO₂</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <h1 class="text-5xl font-bold text-center hero-text mb-8">Como funciona a conversão</h1>
+
+    <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="card flex flex-col items-center">
+            <i class="fas fa-trash-alt fa-3x text-green-500 mb-4"></i>
+            <h3 class="text-lg font-bold mb-2">1. Coleta de Resíduos</h3>
+            <p class="text-sm text-gray-300 text-center">
+                Os resíduos orgânicos, como restos de alimentos e podas de árvores, são coletados de diversas fontes, como residências e empresas.
+            </p>
+        </div>
+    
+        <div class="card flex flex-col items-center">
+            <i class="fas fa-vial fa-3x text-green-500 mb-4"></i>
+            <h3 class="text-lg font-bold mb-2">2. Digestão Anaeróbica</h3>
+            <p class="text-sm text-gray-300 text-center">
+                Em tanques fechados, os resíduos são decompostos por microorganismos na ausência de oxigênio, produzindo biogás e biofertilizante.
+            </p>
+        </div>
+    
+        <div class="card flex flex-col items-center">
+            <i class="fas fa-gas-pump fa-3x text-green-500 mb-4"></i>
+            <h3 class="text-lg font-bold mb-2">3. Produção de Biogás</h3>
+            <p class="text-sm text-gray-300 text-center">
+                O biogás é composto principalmente de metano, que pode ser utilizado como fonte de energia para geração de eletricidade ou calor.
+            </p>
+        </div>
+
+        <div class="card flex flex-col items-center">
+            <i class="fas fa-bolt fa-3x text-green-500 mb-4"></i>
+            <h3 class="text-lg font-bold mb-2">4. Geração de Energia</h3>
+            <p class="text-sm text-gray-300 text-center">
+                O biogás é convertido em eletricidade através de geradores ou utilizado como combustível em sistemas de aquecimento.
+            </p>
+        </div>
+
+        <div class="card flex flex-col items-center">
+            <i class="fas fa-leaf fa-3x text-green-500 mb-4"></i>
+            <h3 class="text-lg font-bold mb-2">5. Impacto Ambiental</h3>
+            <p class="text-sm text-gray-300 text-center">
+                A conversão de resíduos em energia reduz a emissão de gases de efeito estufa e diminui o volume de resíduos em aterros sanitários.
+            </p>
+        </div>
+   
+        <div class="card flex flex-col items-center">
+            <i class="fas fa-seedling fa-3x text-green-500 mb-4"></i>
+            <h3 class="text-lg font-bold mb-2">6. Biofertilizante</h3>
+            <p class="text-sm text-gray-300 text-center">
+                O subproduto da digestão anaeróbica é um biofertilizante rico em nutrientes, que pode ser utilizado na agricultura.
+            </p>
+        </div>
+    </div>
+    
+    <section class="mt-16 text-center">
+        <h2 class="text-4xl font-bold mb-6">Faça a sua parte para um futuro sustentável!</h2>
+        <p class="text-gray-400 mb-8">Implementar essas dicas no seu dia a dia pode contribuir para a preservação do meio ambiente e para uma economia mais sustentável.</p>
+        <a href="dashboard.html" class="bg-green-500 hover:bg-green-600 text-white px-12 py-4 rounded-lg text-lg transition duration-300">Acessar Dashboard</a>
+    </section>
+    <br><br>
+
+    <script>
+        function createEcoParticles() {
+            const background = document.querySelector('.background');
+    for (let i = 0; i < 20; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'eco-symbol';
+        symbol.innerHTML = '♻';
+
+        const size = Math.random() * 30 + 10;
+        symbol.style.fontSize = `${size}px`;
+
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        symbol.style.left = `${startX}px`;
+        symbol.style.top = `${startY}px`;
+
+        const moveX = (Math.random() - 0.5) * 200;
+        const moveY = (Math.random() - 0.5) * 200;
+        symbol.style.setProperty('--moveX', `${moveX}px`);
+        symbol.style.setProperty('--moveY', `${moveY}px`);
+
+        symbol.style.animationDelay = `${Math.random() * 20}s`;
+
+        background.appendChild(symbol);
+    }
+}
+
+createEcoParticles();
+
+        function calcularEnergia() {
+            const material = parseFloat(document.getElementById('material').value);
+            
+            if (isNaN(material) || material <= 0) {
+                alert('Por favor, insira uma quantidade válida.');
+                return;
+            }
+
+            // Adicionar classe de loading durante os cálculos
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.add('loading');
+            });
+
+            // Simular tempo de processamento
+            setTimeout(() => {
+                const energiaKwh = material * 0.5;
+                const diasEstimados = Math.floor(energiaKwh / 10);
+                const co2Evitado = material * 0.8;
+
+                animateValue('energiaGerada', energiaKwh, ' kWh');
+                animateValue('diasConsumo', diasEstimados, ' dias');
+                animateValue('impactoAmbiental', co2Evitado, ' kg CO₂');
+
+                // Remover classe de loading
+                setTimeout(() => {
+                    document.querySelectorAll('.stat-card').forEach(card => {
+                        card.classList.remove('loading');
+                    });
+                }, 1000);
+            }, 500);
+        }
+
+        function animateValue(elementId, value, suffix) {
+            const element = document.getElementById(elementId);
+            const duration = 1500;
+            const steps = 60;
+            const increment = value / steps;
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= value) {
+                    current = value;
+                    clearInterval(timer);
+                }
+                element.textContent = current.toFixed(1) + suffix;
+            }, duration / steps);
+        }
+
+        // Inicializar partículas quando a página carregar
+        document.addEventListener('DOMContentLoaded', createEcoParticles);
+
+        window.onload = function () {
+    fetch('/user')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Usuário não autenticado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const profilePicPath = data.profilePic ? `/img/${data.profilePic}` : '/img/default.jpg';
+            const profilePicElement = document.getElementById('profilePic');
+
+            profilePicElement.src = profilePicPath;
+
+        })
+        .catch(error => {
+            console.error('Erro ao carregar os dados do usuário:', error);
+            document.getElementById('profilePic').src = '/img/default.jpg';
+        });
+};
+
+        const profilePicPath = data.profilePic 
+      ? `/img/${data.profilePic}?t=${new Date().getTime()}` 
+      : '/img/default.jpg';
+    profilePicElement.src = profilePicPath;
+
+        // Mobile Menu Toggle
+        const menuButton = document.querySelector('button');
+        const navLinks = document.querySelector('.md\\:flex');
+
+        menuButton.addEventListener('click', () => {
+            navLinks.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
