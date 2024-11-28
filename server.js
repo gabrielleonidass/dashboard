@@ -15,11 +15,7 @@ app.use('/img', express.static(path.join(__dirname, 'img')));
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-<<<<<<< HEAD
     password: 'cimatec',
-=======
-    password: '3571',
->>>>>>> 3ca792db081b7e64b7bdb0b1443dc37a5d0b6b40
     database: 'banco'
 });
 
@@ -77,15 +73,12 @@ if (!req.session.user) {
 };
 
 app.get('/', (req, res) => {
-<<<<<<< HEAD
   res.sendFile(path.join(__dirname, 'scream1.html'));
 });
 
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html')); 
-=======
-  res.sendFile(path.join(__dirname, 'login.html'));
->>>>>>> 3ca792db081b7e64b7bdb0b1443dc37a5d0b6b40
+
 });
 
 app.get('/index.html', (req, res) => {
@@ -368,11 +361,9 @@ async function atualizarSenha(email, novaSenha) {
 }
 
 // Servidor rodando
-<<<<<<< HEAD
+
 const PORT = 2006;
-=======
-const PORT = 300;
->>>>>>> 3ca792db081b7e64b7bdb0b1443dc37a5d0b6b40
+
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

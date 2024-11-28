@@ -331,7 +331,7 @@
     <script>
 
    // Função para exportar dados para o Excel
-function importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC, consumoSAC, distribuicaoAparelhos) {
+   function importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC, consumoSAC, distribuicaoAparelhos) {
     // Criação de uma nova planilha do Excel
     const wb = XLSX.utils.book_new();
     wb.Props = {
@@ -341,55 +341,128 @@ function importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC
         CreatedDate: new Date()
     };
 
-    // Cabeçalhos da planilha
+    // Cabeçalhos principais e subseções
+    const mainHeader = [["RELATÓRIO DE CONSUMO DE ENERGIA"]];
+    const subHeader = [["Gerado em: " + new Date().toLocaleString()]];
+    const blankRow = [[""]];
+    
+    // Cabeçalhos das seções
+    const consumoHeaders = [["DADOS DE CONSUMO"]];
     const headers = [
-        'Data',
-        'Consumo de Hoje (kWh)',
-        'Consumo Mensal (kWh)',
-        'Custo Estimado (R$)',
-        'Economia de CO2 (kg)',
-        'Consumo com Ar Condicionado (kWh)',
-        'Consumo sem Ar Condicionado (kWh)',
-        'Distribuição de Energia'
+        [
+            'Métrica',
+            'Valor',
+            'Unidade'
+        ]
     ];
 
-    // Calculando valores adicionais
-    const custoEstimado = consumoMensal * tarifa;  // Cálculo do custo estimado
-    const economiaCO2 = consumoMensal * emissaoCO2;  // Economia de CO2
-
-    // Data atual
-    const dataAtual = new Date().toLocaleString();
-
-    // Dados a serem inseridos na planilha
-    const row = [
-        dataAtual,
-        consumoHoje,
-        consumoMensal,
-        custoEstimado,
-        economiaCO2,
-        consumoAC,
-        consumoSAC,
-        distribuicaoAparelhos
+    // Preparação dos dados em formato mais organizado
+    const dados = [
+        ['Consumo Hoje', consumoHoje, 'kWh'],
+        ['Consumo Mensal', consumoMensal, 'kWh'],
+        ['Tarifa', tarifa, 'R$/kWh'],
+        ['Custo Estimado', (consumoMensal * tarifa).toFixed(2), 'R$'],
+        ['Emissão de CO2', (consumoMensal * emissaoCO2).toFixed(2), 'kg'],
     ];
 
-    // Criação da planilha com os dados
-    const ws = XLSX.utils.aoa_to_sheet([headers, row]);
+    // Seção de consumo do ar condicionado
+    const acHeaders = [["ANÁLISE DO AR CONDICIONADO"]];
+    const acDados = [
+        ['Consumo com AC', consumoAC, 'kWh'],
+        ['Consumo sem AC', consumoSAC, 'kWh'],
+        ['Impacto do AC', ((consumoAC - consumoSAC) / consumoAC * 100).toFixed(2), '%']
+    ];
 
-    // Adicionando a planilha ao arquivo Excel
-    XLSX.utils.book_append_sheet(wb, ws, "Consumo de Energia");
+    // Processamento da distribuição de aparelhos
+    const distHeaders = [["DISTRIBUIÇÃO POR APARELHOS"]];
+    const distribuicaoArray = distribuicaoAparelhos.split(', ').map(item => {
+        const [aparelho, valor] = item.split(': ');
+        return [aparelho, valor];
+    });
 
-    // Exporta o arquivo Excel
-    XLSX.writeFile(wb, "relatorio_consumo.xlsx");
+    // Combinando todos os dados
+    const allData = [
+        ...mainHeader,
+        ...subHeader,
+        ...blankRow,
+        ...consumoHeaders,
+        ...headers,
+        ...dados,
+        ...blankRow,
+        ...acHeaders,
+        ...headers,
+        ...acDados,
+        ...blankRow,
+        ...distHeaders,
+        ...distribuicaoArray
+    ];
+
+    // Criação da planilha
+    const ws = XLSX.utils.aoa_to_sheet(allData);
+
+    // Definição das larguras das colunas
+    const wscols = [
+        {wch: 25},  // Coluna A
+        {wch: 15},  // Coluna B
+        {wch: 12}   // Coluna C
+    ];
+    ws['!cols'] = wscols;
+
+    // Estilização das células
+    // Definindo estilos para diferentes tipos de células
+    const styleMainHeader = {
+        font: {bold: true, size: 14, color: {rgb: "FFFFFF"}},
+        fill: {fgColor: {rgb: "4F81BD"}},
+        alignment: {horizontal: "center"}
+    };
+
+    const styleSubHeader = {
+        font: {italic: true},
+        alignment: {horizontal: "center"}
+    };
+
+    const styleSectionHeader = {
+        font: {bold: true},
+        fill: {fgColor: {rgb: "DCE6F1"}},
+        alignment: {horizontal: "center"}
+    };
+
+    const styleTableHeader = {
+        font: {bold: true},
+        fill: {fgColor: {rgb: "E9EEF6"}},
+        border: {
+            top: {style: "thin"},
+            bottom: {style: "thin"},
+            left: {style: "thin"},
+            right: {style: "thin"}
+        }
+    };
+
+    // Aplicando estilos (Note: Isso requer uma biblioteca adicional como xlsx-style)
+    ws['A1'].s = styleMainHeader;
+    ws['A2'].s = styleSubHeader;
+
+    // Mesclar células para cabeçalhos
+    ws['!merges'] = [
+        {s: {r: 0, c: 0}, e: {r: 0, c: 2}},  // Título principal
+        {s: {r: 1, c: 0}, e: {r: 1, c: 2}},  // Subtítulo
+    ];
+
+    // Adicionar a planilha ao workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Relatório de Consumo");
+
+    // Exportar o arquivo
+    XLSX.writeFile(wb, `Relatorio_Consumo_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
-// Exemplos de dados para exportação
-const consumoHoje = 15;  // kWh
-const consumoMensal = 450;  // kWh
-const tarifa = 0.33;  // R$ por kWh
-const emissaoCO2 = 0.5;  // kg de CO2 por kWh
-const consumoAC = 250;  // kWh
-const consumoSAC = 200;  // kWh
-const distribuicaoAparelhos = "Ar Condicionado: 30%, Geladeira: 15%, Televisão: 10%, Iluminação: 5%, Outros: 40%";  // Exemplo de distribuição de energia
+// Exemplo de uso
+const consumoHoje = 15;
+const consumoMensal = 450;
+const tarifa = 0.33;
+const emissaoCO2 = 0.5;
+const consumoAC = 250;
+const consumoSAC = 200;
+const distribuicaoAparelhos = "Ar Condicionado: 30%, Geladeira: 15%, Televisão: 10%, Iluminação: 5%, Outros: 40%";
 
 
 
