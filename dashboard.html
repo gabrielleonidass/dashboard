@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(120deg, #1a1f3c, #2a2f4c);
+}
+
+.eco-symbol {
+    position: absolute;
+    color: #4CAF50;
+    opacity: 0.1;
+    pointer-events: none;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(var(--moveX), var(--moveY)) rotate(360deg); }
+}
+
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            transition: transform 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+        }
+
+        .progress-ring {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        #profilePic {
+    height: 35px;
+    width: 35px;
+    aspect-ratio: 1 / 1; /* Mantém o formato quadrado */
+    border-radius: 50%; /* Torna a imagem circular */
+    border: 2px solid #4CAF50; /* Borda para destacar */
+    transition: transform 0.6s ease; /* Efeito hover opcional */
+}
+
+#profilePic:hover {
+    transform: scale(1.1); /* Efeito de zoom no hover */
+}
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="background"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-lg z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-leaf text-green-500 text-2xl mr-2"></i>
+                    <span class="text-xl font-bold">ParispeEnergy</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link">Início</a>
+                    <a href="dashboard.html" class="nav-link">Dashboard</a>
+                    <a href="renewables.html" class="nav-link">Energia Renovável</a>
+                    <a href="tips.html" class="nav-link">Dicas</a>
+                    <a href="about.html" class="nav-link">Sobre</a>
+                    <a href="conversion.html" class="nav-link">Biomassa</a>
+                    <div class="flex items-center space-x-4">
+                        <a href="profile.html" id="user">
+                            <img src="profile-picture.jpg" alt="Foto de Perfil" id="profilePic">
+                        </a>
+                    </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-24 pb-12 px-6">
+        <div class="container mx-auto">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold mb-4 md:mb-0">Dashboard de Energia</h1>
+                <div class="flex space-x-4">
+                    <button onclick="importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC, consumoSAC, distribuicaoAparelhos)" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition duration-300">
+                        <i class="fas fa-download mr-2"></i>Exportar Dados (Excel)
+                    </button>
+                           
+                    
+                    <button class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition duration-300">
+                        <i class="fas fa-sync-alt mr-2"></i>Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card card p-6 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-400">Consumo Hoje</p>
+                            <h3 class="text-2xl font-bold">12.5 kWh</h3>
+                            <p class="text-green-500"><i class="fas fa-arrow-down"></i> 5.2% vs ontem</p>
+                        </div>
+                        <div class="bg-green-500 bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-bolt text-green-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card card p-6 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-400">Consumo Mensal</p>
+                            <h3 class="text-2xl font-bold">387 kWh</h3>
+                            <p class="text-red-500"><i class="fas fa-arrow-up"></i> 2.1% vs mês anterior</p>
+                        </div>
+                        <div class="bg-blue-500 bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-calendar-alt text-blue-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card card p-6 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-400">Custo Estimado</p>
+                            <h3 class="text-2xl font-bold">R$ 245,30</h3>
+                            <p class="text-yellow-500"><i class="fas fa-equals"></i> 0.5% vs média</p>
+                        </div>
+                        <div class="bg-yellow-500 bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-dollar-sign text-yellow-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card card p-6 rounded-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-400">Economia CO₂</p>
+                            <h3 class="text-2xl font-bold">45.2 kg</h3>
+                            <p class="text-green-500"><i class="fas fa-arrow-up"></i> 8.3% melhor</p>
+                        </div>
+                        <div class="bg-purple-500 bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-leaf text-purple-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Consumo Diário -->
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Consumo Diário</h3>
+                    <div class="chart-container">
+                        <canvas id="dailyConsumption"></canvas>
+                    </div>
+                </div>
+
+                <!-- Consumo por Aparelho -->
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Consumo por Aparelho</h3>
+                    <div class="chart-container">
+                        <canvas id="deviceConsumption"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Devices Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="card p-6 rounded-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Ar Condicionado</h3>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Consumo Atual</p>
+                            <p class="text-2xl font-bold">850W</p>
+                        </div>
+                        <div class="text-green-500">
+                            <i class="fas fa-snowflake text-4xl pulse"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6 rounded-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Geladeira</h3>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Consumo Atual</p>
+                            <p class="text-2xl font-bold">120W</p>
+                        </div>
+                        <div class="text-blue-500">
+                            <i class="fas fa-temperature-low text-4xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6 rounded-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Iluminação</h3>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Consumo Atual</p>
+                            <p class="text-2xl font-bold">180W</p>
+                        </div>
+                        <div class="text-yellow-500">
+                            <i class="fas fa-lightbulb text-4xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Section -->
+            <div class="card p-6 rounded-lg mb-8">
+                <h3 class="text-xl font-bold mb-4">Alertas e Notificações</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center p-4 bg-yellow-500 bg-opacity-20 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-xl mr-4"></i>
+                        <div>
+                            <h4 class="font-bold">Consumo Elevado</h4>
+                            <p class="text-gray-400">O ar condicionado está consumindo mais que o normal</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-4 bg-green-500 bg-opacity-20 rounded-lg">
+                        <i class="fas fa-check-circle text-green-500 text-xl mr-4"></i>
+                        <div>
+                            <h4 class="font-bold">Meta Atingida</h4>
+                            <p class="text-gray-400">Você atingiu sua meta de economia do mês!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script>
+
+   // Função para exportar dados para o Excel
+function importToExcel(consumoHoje, consumoMensal, tarifa, emissaoCO2, consumoAC, consumoSAC, distribuicaoAparelhos) {
+    // Criação de uma nova planilha do Excel
+    const wb = XLSX.utils.book_new();
+    wb.Props = {
+        Title: "Relatório de Consumo de Energia",
+        Subject: "Consumo de Energia",
+        Author: "Sistema de Gestão",
+        CreatedDate: new Date()
+    };
+
+    // Cabeçalhos da planilha
+    const headers = [
+        'Data',
+        'Consumo de Hoje (kWh)',
+        'Consumo Mensal (kWh)',
+        'Custo Estimado (R$)',
+        'Economia de CO2 (kg)',
+        'Consumo com Ar Condicionado (kWh)',
+        'Consumo sem Ar Condicionado (kWh)',
+        'Distribuição de Energia'
+    ];
+
+    // Calculando valores adicionais
+    const custoEstimado = consumoMensal * tarifa;  // Cálculo do custo estimado
+    const economiaCO2 = consumoMensal * emissaoCO2;  // Economia de CO2
+
+    // Data atual
+    const dataAtual = new Date().toLocaleString();
+
+    // Dados a serem inseridos na planilha
+    const row = [
+        dataAtual,
+        consumoHoje,
+        consumoMensal,
+        custoEstimado,
+        economiaCO2,
+        consumoAC,
+        consumoSAC,
+        distribuicaoAparelhos
+    ];
+
+    // Criação da planilha com os dados
+    const ws = XLSX.utils.aoa_to_sheet([headers, row]);
+
+    // Adicionando a planilha ao arquivo Excel
+    XLSX.utils.book_append_sheet(wb, ws, "Consumo de Energia");
+
+    // Exporta o arquivo Excel
+    XLSX.writeFile(wb, "relatorio_consumo.xlsx");
+}
+
+// Exemplos de dados para exportação
+const consumoHoje = 15;  // kWh
+const consumoMensal = 450;  // kWh
+const tarifa = 0.33;  // R$ por kWh
+const emissaoCO2 = 0.5;  // kg de CO2 por kWh
+const consumoAC = 250;  // kWh
+const consumoSAC = 200;  // kWh
+const distribuicaoAparelhos = "Ar Condicionado: 30%, Geladeira: 15%, Televisão: 10%, Iluminação: 5%, Outros: 40%";  // Exemplo de distribuição de energia
+
+
+
+        // Charts Configuration
+        const dailyCtx = document.getElementById('dailyConsumption').getContext('2d');
+        const deviceCtx = document.getElementById('deviceConsumption').getContext('2d');
+
+        // Daily Consumption Chart
+        new Chart(dailyCtx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                datasets: [{
+                    label: 'Consumo (kWh)',
+                    data: [0.5, 0.3, 0.8, 1.2, 0.9, 1.5],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#fff'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#fff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Device Consumption Chart
+        new Chart(deviceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Ar Condicionado', 'Geladeira', 'Iluminação', 'Outros'],
+                datasets: [{
+                    data: [40, 25, 15, 20],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#2196F3',
+                        '#FFC107',
+                        '#9C27B0'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Mobile Menu Toggle
+        const menuButton = document.querySelector('button');
+        const navLinks = document.querySelector('.md\\:flex');
+
+        menuButton.addEventListener('click', () => {
+            navLinks.classList.toggle('hidden');
+        });
+
+        function createEcoSymbols() {
+    const background = document.querySelector('.background');
+    for (let i = 0; i < 20; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'eco-symbol';
+        symbol.innerHTML = '♻';
+
+        const size = Math.random() * 30 + 10;
+        symbol.style.fontSize = `${size}px`;
+
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        symbol.style.left = `${startX}px`;
+        symbol.style.top = `${startY}px`;
+
+        const moveX = (Math.random() - 0.5) * 200;
+        const moveY = (Math.random() - 0.5) * 200;
+        symbol.style.setProperty('--moveX', `${moveX}px`);
+        symbol.style.setProperty('--moveY', `${moveY}px`);
+
+        symbol.style.animationDelay = `${Math.random() * 20}s`;
+
+        background.appendChild(symbol);
+    }
+}
+
+createEcoSymbols();
+
+window.onload = function () {
+    fetch('/user')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Usuário não autenticado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const profilePicPath = data.profilePic ? `/img/${data.profilePic}` : '/img/default.jpg';
+            const profilePicElement = document.getElementById('profilePic');
+
+            profilePicElement.src = profilePicPath;
+
+        })
+        .catch(error => {
+            console.error('Erro ao carregar os dados do usuário:', error);
+            document.getElementById('profilePic').src = '/img/default.jpg';
+        });
+};
+
+    const profilePicPath = data.profilePic 
+      ? `/img/${data.profilePic}?t=${new Date().getTime()}` 
+      : '/img/default.jpg';
+    profilePicElement.src = profilePicPath;
+
+
+        
+    </script>
+</body>
+</html>
