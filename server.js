@@ -3,13 +3,16 @@ const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const path = require('path');
+const nodemailer = require('nodemailer');
 const session = require('express-session');
-const multer = require('multer')
+const multer = require('multer');
+const router = express.Router();
+
+module.exports = router;
 
 const app = express();
 app.use(bodyParser.json());
 app.use('/img', express.static(path.join(__dirname, 'img')));
-
 
 // Conexão com o banco de dados
 const db = mysql.createConnection({
@@ -63,6 +66,18 @@ const upload = multer({
   }
 });
 
+// Criar um objeto transportador
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+      user: 'parispenergy@gmail.com', // Seu e-mail do Gmail
+      pass: 'bzaf rgot kzcu rwqb' // A senha de aplicativo que você acabou de gerar
+  },
+  tls: {
+      rejectUnauthorized: false // Apenas se necessário
+  }
+});
+
 // middleware para verificar autenticação em rotas protegidas
 function verificarAutenticacao(req, res, next) {
 if (!req.session.user) {
@@ -77,8 +92,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html')); 
-
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.get('/index.html', (req, res) => {
@@ -294,6 +308,32 @@ app.post('/atualizarPerfil', verificarAutenticacao, async (req, res) => {
       }
       res.json({ message: 'Perfil atualizado com sucesso!' });
   });
+});
+
+router.post('/api/esqueci-senha', async (req, res) => {
+  const { email } = req.body;
+  console.log('E-mail recebido:', email);
+  try {
+      const [user] = await db.query('SELECT email FROM usuario WHERE email = ?', [email]);
+      if (user.length === 0) {
+          return res.status(404).json({ message: 'E-mail não encontrado.' });
+      }
+
+      const token = gerarToken();
+      await salvarToken(email, token);
+
+      const link = `http://localhost:2006/password?token=${token}`;
+      await transporter.sendMail({
+          to: email,
+          subject: 'Redefinição de Senha',
+          text: `Clique no link para redefinir sua senha: ${link}`
+      });
+
+      res.json({ message: 'Email de redefinição de senha enviado.' });
+  } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
+      res.status(500).json({ message: 'Erro ao enviar o e-mail.' });
+  }
 });
 
 app.post('/atualizarSenha', verificarAutenticacao, async (req, res) => {

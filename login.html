@@ -490,11 +490,11 @@
                    
                 </div>
             </div>
-
             <div class="card">
                 <div class="card-header">
                     <h2>Entrar</h2>
-
+                    <br>
+                </div>
                 <div  id="login-card" >
                     <form id="login-form">
                         <div class="form-group">
@@ -506,7 +506,10 @@
                             <input type="password" id="senha" required>
                         </div>
                         <button type="submit" class="btn">Entrar</button>
+                        <br><br>
                         <a href="#" class="nav-link" onclick="showRegisterCard()">Criar uma conta</a>
+                        <br>
+                        <a href="#" class="nav-link" onclick="esqueciSenha()">Esqueci minha senha?</a>
                     </form>
                 </div>
             
@@ -531,7 +534,19 @@
                         <button type="submit" class="btn">Cadastrar</button>
                         <a href="#" class="nav-link" onclick="showLoginCard()">Já tem uma conta? Login</a>
                     </form>
-                </div>            
+                </div>  
+                
+                <div id="pass-card" style="display: none;">
+                    <form id="pass-form">
+                        <div class="form-group">
+                            <label for="recovery-email">E-mail</label>
+                            <input type="email" id="recovery-email" required>
+                        </div>       
+                        <button type="submit" class="btn">Enviar E-mail de Redefinição</button>
+                        <br>
+                        <a href="#" class="nav-link" onclick="showLoginCard()">Voltar para Login</a>
+                    </form>
+                </div>
                 </div>
             </div>
         </div>
@@ -582,6 +597,14 @@
     <div class="particles" id="particles"></div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('pass-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const email = document.getElementById('email').value;
+                await enviarEmailRecuperacao(email);
+            });
+        });
+
            function createEcoSymbols() {
             const background = document.querySelector('.background');
             for (let i = 0; i < 20; i++) {
@@ -612,15 +635,23 @@
 
         function showRegisterCard() {
             document.getElementById('login-card').style.display = 'none';
+            document.getElementById('pass-card').style.display = 'none';
             document.getElementById('register-card').style.display = 'block';
         }
 
         function showLoginCard() {
             document.getElementById('register-card').style.display = 'none';
+            document.getElementById('pass-card').style.display = 'none';
             document.getElementById('login-card').style.display = 'block';
         }
 
-        document.getElementById('login-form').addEventListener('submit', async (event) => {
+        function esqueciSenha(){
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('register-card').style.display = 'none';
+            document.getElementById('pass-card').style.display = 'block';
+        }
+
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const email = document.getElementById('email').value;
@@ -645,6 +676,7 @@
         alert('Erro no servidor.');
     }
 });
+
 
 // Enviar dados do formulário de Cadastro
 document.getElementById('register-form').addEventListener('submit', async (event) => {
@@ -679,6 +711,27 @@ document.getElementById('register-form').addEventListener('submit', async (event
         alert('Erro no servidor.');
     }
 });
+
+        async function enviarEmailRecuperacao(email) {
+            try {
+                const response = await fetch('/api/esqueci-senha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error('Erro ao enviar e-mail:', error);
+                alert('Ocorreu um erro ao enviar o e-mail.');
+            }
+        }
+
     </script>
 </body>
 </html>
