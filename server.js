@@ -394,13 +394,30 @@ app.post('/logout', (req, res) => {
   });
 });
 
-async function atualizarSenha(email, novaSenha) {
-  const hashedPassword = await bcrypt.hash(novaSenha, 10);
-  const query = 'UPDATE usuarios SET senha = ? WHERE email = ?';
-  await db.query(query, [hashedPassword, email]);
-}
+// função para redefinir a senha
+const resetPassword = (email, newPassword) => {
 
-// Servidor rodando
+  bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
+    if (err) {
+      console.error('Erro ao criptografar a senha: ', err);
+      return;
+    }
+
+    const query = 'UPDATE usuario SET senha = ? WHERE email = ?';
+    db.execute(query, [hashedPassword, email], (err, result) => {
+      if (err) {
+        console.error('Erro ao atualizar a senha: ', err);
+        return;
+      }
+
+      if (result.affectedRows > 0) {
+        console.log('Senha redefinida com sucesso!');
+      } else {
+        console.log('Usuário não encontrado.');
+      }
+    });
+  });
+};
 
 const PORT = 2006;
 

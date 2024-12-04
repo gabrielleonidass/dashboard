@@ -509,7 +509,6 @@
                         <br><br>
                         <a href="#" class="nav-link" onclick="showRegisterCard()">Criar uma conta</a>
                         <br>
-                        <a href="#" class="nav-link" onclick="esqueciSenha()">Esqueci minha senha?</a>
                     </form>
                 </div>
             
@@ -537,15 +536,22 @@
                 </div>  
                 
                 <div id="pass-card" style="display: none;">
-                    <form id="pass-form">
+                    <form id="resetForm">
                         <div class="form-group">
-                            <label for="recovery-email">E-mail</label>
-                            <input type="email" id="recovery-email" required>
-                        </div>       
-                        <button type="submit" class="btn">Enviar E-mail de Redefinição</button>
-                        <br>
-                        <a href="#" class="nav-link" onclick="showLoginCard()">Voltar para Login</a>
+                            <label for="email">Email</label>
+                            <input type="email" id="login-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Nova Senha</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar Senha</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn">Redefinir</button>
                     </form>
+                    <a href="#" class="back-link" onclick="showLoginCard()">Voltar ao Login</a>
                 </div>
                 </div>
             </div>
@@ -712,25 +718,50 @@ document.getElementById('register-form').addEventListener('submit', async (event
     }
 });
 
-        async function enviarEmailRecuperacao(email) {
-            try {
-                const response = await fetch('/api/esqueci-senha', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
+    // Captura o formulário de redefinição de senha
+    document.getElementById('resetForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita o envio padrão do formulário
 
-                if (!response.ok) {
-                    throw new Error(`Erro: ${response.status} ${response.statusText}`);
-                }
+        // Obtém os valores do formulário
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-                const result = await response.json();
-                alert(result.message);
-            } catch (error) {
-                console.error('Erro ao enviar e-mail:', error);
-                alert('Ocorreu um erro ao enviar o e-mail.');
-            }
+        // Verifica se as senhas coincidem
+        if (password !== confirmPassword) {
+            alert('As senhas não coincidem!');
+            return;
         }
+
+        // Você deve enviar o e-mail do usuário de alguma forma (como um campo oculto ou obtido de outra maneira)
+        const email = 'usuario@exemplo.com'; // Exemplo de e-mail, você deve substituir com o e-mail real
+
+        // Cria o corpo da requisição
+        const data = {
+            email: email,
+            password: password
+        };
+
+        // Envia a requisição para o backend
+        fetch('/reset-password', {  // A URL do seu endpoint backend
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Senha redefinida com sucesso!');
+            } else {
+                alert('Erro ao redefinir a senha: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao enviar a requisição:', error);
+            alert('Ocorreu um erro ao redefinir a senha.');
+        });
+    });
 
     </script>
 </body>
